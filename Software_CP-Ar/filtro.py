@@ -3,9 +3,8 @@ import numpy as np
 from scipy.signal import butter, sosfilt, sosfilt_zi, find_peaks
 import time
 
-# =========================
 # Parámetros de procesamiento
-# =========================
+
 fs = 100.0                      # Hz
 batch_sec = 10.0
 n_batch = int(batch_sec * fs)   # 1000 muestras
@@ -35,15 +34,11 @@ CAL_N_INIT = 8                # compresiones "buenas" para fijar baseline
 CAL_MIN_PROM_FACTOR = 0.6     # mínima prominencia relativa al cuantil 75% local
 CAL_SMOOTH_K = 3              # usar mediana de las últimas k prominencias
 
-# =========================
 # Filtros causales (ligeros)
-# =========================
 _sos_hp = butter(2, 0.25/(fs/2), btype='highpass', output='sos')
 _sos_bp = butter(2, [0.6/(fs/2), 10.0/(fs/2)], btype='bandpass', output='sos')
 
-# =========================
 # Estados internos (streaming)
-# =========================
 _zi_hp = sosfilt_zi(_sos_hp) * 0.0
 _zi_bp = sosfilt_zi(_sos_bp) * 0.0
 
@@ -266,9 +261,6 @@ def update_stream(raw_samples):
         _last_n = int(peaks_local.size)
         _last_cpm = float((_last_n / batch_sec) * 60.0)
 
-        # 🟢 Lógica para eliminar profundidad fantasma:
-        # Si la CPM es muy baja (< 30), asumimos que no hay RCP activa 
-        # y forzamos profundidad a 0.
         if _last_cpm < 30:
             _last_cpm = 0.0
             _last_n = 0
@@ -292,9 +284,8 @@ def get_last_metrics():
         "no_rcp_time_s": float(_no_rcp_time_s),
     }
 
-# =========================
 # Back-compat API
-# =========================
+
 def compute_counts(arr):
     update_stream(arr if isinstance(arr, (list, np.ndarray)) else [])
     m = get_last_metrics()
@@ -305,9 +296,10 @@ def compute_counts_depth(arr):
     m = get_last_metrics()
     return m["n_comp"], m["cpm"], m["depth_cm"]
 
-# Blueprint dummy
+
 try:
     from flask import Blueprint
     stats_bp = Blueprint('stats_bp', __name__)
 except Exception:
+
     stats_bp = None
