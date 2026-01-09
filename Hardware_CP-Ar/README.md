@@ -1,3 +1,12 @@
+# Hardware – CP-Ar
+
+Este directorio contiene la documentación asociada al diseño electrónico del prototipo CP-Ar, incluyendo la arquitectura funcional del dispositivo y las decisiones de integración hardware–software adoptadas durante el desarrollo.
+
+---
+
+## Arquitectura funcional del dispositivo
+
+```text
                  ┌──────────────────────────────────┐
                  │           CP-Ar (ESP32)          │
                  │──────────────────────────────────│
@@ -44,3 +53,4 @@
        │ • Procesamiento offline     │      │ • Análisis posterior        │
        │ • Visualización avanzada    │      │ • Reproducibilidad          │
        └─────────────────────────────┘      └─────────────────────────────┘
+
