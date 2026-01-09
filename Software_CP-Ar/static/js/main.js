@@ -17,8 +17,6 @@ async function actualizarDatos(){
   grafico.update();
 }
 setInterval(actualizarDatos, 100);
-
-// === stats (iguales, pero pintamos métricas y resumen) ===
 async function actualizarStats(){
   const r = await fetch('/stats'); const j = await r.json();
   document.getElementById('n_comp').textContent = j.n_comp;
@@ -27,41 +25,33 @@ async function actualizarStats(){
   document.getElementById('prof_cm').textContent = j.prof_cm.toFixed(1);
   document.getElementById('metric-prof').textContent = j.prof_cm.toFixed(1);
 
-
-  // Si más adelante calculás profundidad/tiempos reales, actualizá aquí:
-  // document.getElementById('metric-prof').textContent = `${profundidad.toFixed(1)} cm`;
 }
 setInterval(actualizarStats, 300);
 
-// --- NUEVA FUNCIÓN PARA SINCRONIZAR EL TIMER CON EL SERVIDOR ---
 async function actualizarTimer() {
     try {
         const r = await fetch('/api/device-info'); 
         const j = await r.json();
 
-        const sessionDuration = j.session.duration; // Viene como "mm:ss" o "—"
+        const sessionDuration = j.session.duration; 
         const timerElement = document.getElementById('metric-t_rcp');
         
-        // El servidor devuelve "—" si el timer no ha comenzado (no hay primer dato)
+ 
         if (timerElement) {
             if (sessionDuration !== '—') {
-                timerElement.textContent = sessionDuration; // Muestra el tiempo contado por Python
+                timerElement.textContent = sessionDuration; 
             } else {
-                timerElement.textContent = '00:00';        // Muestra 00:00 si aún no hay datos
+                timerElement.textContent = '00:00';        
             }
         }
         
-        // Opcional: Actualizar estado de la sesión, si tienes un elemento para ello
-        // const statusElement = document.getElementById('session-status');
-        // if (statusElement) statusElement.textContent = j.session.status;
-
 
     } catch (e) {
         console.error('Error al actualizar el timer:', e);
     }
 }
-setInterval(actualizarTimer, 500); // Sincroniza el timer cada medio segundo
-// -------------------------------------------------------------
+setInterval(actualizarTimer, 500);
+
 
 
 const reportBtn    = document.getElementById('btn-ver-reporte'); 
@@ -91,7 +81,6 @@ function toggleReporte(enable){
     : null;
 }
 
-// === controles ===
 async function iniciar(){
   const comentario = document.getElementById("comentario").value;
   await fetch('/start', {
@@ -99,9 +88,6 @@ async function iniciar(){
     body: JSON.stringify({ comentario })
   });
   
-  // --- ELIMINADA LA LLAMADA AL TIMER LOCAL ---
-  // startTimerRCP({reset:true});
-  // ------------------------------------------
   
   toggleDescarga(false);
   toggleReporte(false);
@@ -117,10 +103,6 @@ async function detener(){
     const ct  = res.headers.get('content-type') || '';
     const data = ct.includes('application/json') ? await res.json() : null;
 
-    // --- ELIMINADA LA LLAMADA AL TIMER LOCAL ---
-    // stopTimerRCP();
-    // ------------------------------------------
-
     toggleDescarga(true);
 
     const success = res.ok && (!data || data.ok === true);
@@ -130,9 +112,7 @@ async function detener(){
       return;
     }
 
- 
-    toggleReporte(true);
-    
+    toggleReporte(true);   
 
   } catch (err) {
     alert('Error de red al detener: ' + err.message);
@@ -145,12 +125,3 @@ function toggleDescarga(enable){
   if(enable){ btn.classList.remove('disabled'); }
   else{ btn.classList.add('disabled'); }
 }
-
-
-
-// ==== TIMER RCP: SECCIÓN ELIMINADA/OBSOLETA ====
-// Todas las variables y funciones de esta sección (rcpTimerInterval, rcpStartTs, 
-// fmtMMSS, renderRcpTime, startTimerRCP, stopTimerRCP) han sido eliminadas o 
-// reemplazadas por la función actualizarTimer() arriba. 
-// Deje el resto del main.js limpio sin estas funciones de timer local.
-// ==============================================
