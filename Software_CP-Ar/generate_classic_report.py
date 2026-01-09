@@ -44,13 +44,13 @@ def render_report(metrics: dict) -> str:
     q = metrics.get("cpr_quality", {})
     rbpm = q.get("rate_bpm", {})
 
-    # KPI checks (solo los que tenemos con CPM)
+    # KPI 
     mean_rate = rbpm.get("mean")
     in_target = rbpm.get("in_target_pct_100_120")
     comp_frac = q.get("compression_fraction_pct")
     hands_off = q.get("hands_off_time_s")
 
-    # Simple quality highlights
+ 
     mean_rate_html = badge(mean_rate if mean_rate is not None else None, 100, 120)
     comp_frac_html = f'<span class="kpi">{fmt(comp_frac,1)}%</span>' if comp_frac is not None else "N/D"
     if comp_frac is not None and comp_frac < 60:
@@ -190,3 +190,4 @@ def main(in_path="C:/Users/Equipo/Documents/Proyecto_Final/Datos/metrics.json", 
 
 if __name__ == "__main__":
     main()
+
