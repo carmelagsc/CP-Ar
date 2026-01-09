@@ -4,7 +4,7 @@ import numpy as np
 
 # Parámetros
 fs = 100.0  # (Hz)
-file = "C:/Users/Equipo/Documents/Proyecto_Final/flask _pruebas/simu/modelo.csv" 
+file = "Software_CP-Ar/simu/modelo.csv" 
 
 # Cargar el CSV
 df = pd.read_csv(file)
