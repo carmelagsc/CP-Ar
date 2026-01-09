@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, jsonify, send_file
 import csv
 import os
 import io
-import filtro3 as ft
+import filtro as ft
 import pandas as pd
 from datetime import datetime, timezone
 import time
@@ -35,17 +35,17 @@ if not os.path.exists(archivo_csv):
 def mostrar_grafico():
     return render_template("index.html")
 
-@app.route("/start", methods=["POST"]) #Esta ruta permite iniciar la grabación de la sesión mediante el boton start
+@app.route("/start", methods=["POST"]) 
 def start():
     global guardando, datos_z, comentario_actual, registro_tiempo_iniciado, total_muestras_procesadas
     datos_z = []
     total_muestras_procesadas = 0
     guardando = True
-    #registro_tiempo_iniciado = False
+   
 
     global state
-    state.session_start_ts = None  # <-- Asegura que el timer esté reseteado
-    state.session_active = True    # Marcamos que la grabación está 'activa' (esperando datos)
+    state.session_start_ts = None  
+    state.session_active = True    
    
     comentario_actual = request.json.get("comentario", "").strip()
     try:
@@ -59,13 +59,13 @@ def start():
     
     return "Guardado iniciado"
 
-@app.route("/stop", methods=["POST"]) # Esta ruta permite frenar el guardado y la sesión para el análisis de métricas
+@app.route("/stop", methods=["POST"]) 
 def stop_recording():
     global guardando, registro_tiempo_iniciado
     guardando = False
-    registro_tiempo_iniciado = False # <-- Reinicia el flag
+    registro_tiempo_iniciado = False
 
-    # Resetea el estado para /api/device-info
+    
     global state
     state.session_active = False
     state.session_start_ts = None
@@ -100,13 +100,13 @@ def recibir_datos():
     except ValueError:
         return "CPM:0,PROF:0.0"
     
-    #start_index = len(datos_z) #Buffer en memoria 
+
     datos_z.extend(nuevas_medidas)
 
 
     if guardando and state.session_start_ts is None:
-        state.session_start_ts = time.time()  # <-- Inicia el timer AQUI solo si es None
-     # Marca que el timer ya se ha iniciado
+        state.session_start_ts = time.time()  # <-- si es None empieza el timer
+     # Marca que el timer ya se inició
      
         print(f"Timer de sesión iniciado a las: {state.session_start_ts}")
     n_comp, cpm, prof_cm, no_rcp = 0, 0.0, 0.0, 0
@@ -124,7 +124,7 @@ def recibir_datos():
         fs_local = getattr(ft, "fs", 100.0)
         with open(archivo_csv, mode='a', newline='') as f:
             writer = csv.writer(f)
-            # Usamos el contador global para mantener la continuidad del tiempo
+            # contador global para mantener la continuidad del tiempo
             start_absolute_index = total_muestras_procesadas 
             
             for i, valor in enumerate(nuevas_medidas):
@@ -313,4 +313,5 @@ def descargar_markdown():
     )
 
 if __name__ == "__main__":
+
     app.run(host="0.0.0.0", port=5000)
