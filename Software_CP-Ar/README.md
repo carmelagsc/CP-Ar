@@ -1,4 +1,14 @@
-                    ┌─────────────────────────────┐
+# Software – CP-Ar
+
+Este directorio contiene el firmware del dispositivo CP-Ar y las herramientas de procesamiento, visualización y validación asociadas.  
+El software fue diseñado para operar tanto en modo autónomo (embebido) como en modo conectado mediante un servidor externo.
+
+---
+
+## Arquitectura general del sistema
+
+```text
+                    ┌──────────────────────────────┐
                     │        Dispositivo ESP32     │
                     │  - Aceleración (muestras)    │
                     │                              │
@@ -33,7 +43,8 @@
         │   │ - robustez errores │   │ - pausas, CCF, % en rango│  │
         │   └────────────────────┘   └──────────────────────────┘  │
         │                                                          │
-        │  Plantillas y estáticos: /templates (HTML), /static (JS,CSS)
+        │  Plantillas y estáticos: /templates (HTML),              │
+        │                           /static (JS,CSS)               │
         └──────────────┬───────────────────────────────────────────┘
                        │
          (HTTP GET / AJAX desde GUI)                               
@@ -45,14 +56,14 @@
           │  - Botones: POST /start, POST /stop    │
           │  - Ver /reporte y bajar /descargar     │
           └────────────────────────────────────────┘
+```
+---
 
+## Validación del algoritmo y la interfaz
 
+La validación del sistema se realizó utilizando señales sintéticas controladas y señales reales obtenidas durante ensayos experimentales, con el objetivo de evaluar el comportamiento del algoritmo sin depender exclusivamente de datos reales.
 
-
-
-Diagrama de la válidación de la página y los algoritmos
-
-
+```text
 
        ┌──────────────────────────┐
        │  Inicio de la validación │
@@ -60,14 +71,14 @@ Diagrama de la válidación de la página y los algoritmos
                        │
                        ▼
        ┌────────────────────────────────────────┐
-       │ Definir objetivo: validar algoritmo e │
-       │ interfaz sin depender de datos reales │
+       │ Definir objetivo: validar algoritmo e  │
+       │ interfaz sin depender de datos reales  │
        └─────────────────┬──────────────────────┘
                          │
                          ▼
        ┌─────────────────────────────────────────────┐
        │ Seleccionar método de validación sintético  │
-       │ (modelo matemático de la señal de RCP)     │
+       │ (modelo matemático de la señal de RCP)      │
        └─────────────────┬───────────────────────────┘
                          │
                          ▼
@@ -79,14 +90,14 @@ Diagrama de la válidación de la página y los algoritmos
                           ▼
        ┌─────────────────────────────────────────────┐
        │ Generar barrido de parámetros               │
-       │ f ∈ [1.6, 2.0] Hz                            │
-       │ ϕ ∈ [0.1, 0.4] s                             │
+       │ f ∈ [1.6, 2.0] Hz                           │
+       │ ϕ ∈ [0.1, 0.4] s                            │
        └──────────────────┬──────────────────────────┘
                           │
                           ▼
        ┌─────────────────────────────────────────────┐
-       │ Comparar modelo con señal real (CR3)       │
-       │ Calcular correlación de Pearson            │
+       │ Comparar modelo con señal real (CR3)        │
+       │ Calcular correlación de Pearson             │
        └──────────────────┬──────────────────────────┘
                           │
                           ▼
@@ -105,3 +116,6 @@ Diagrama de la válidación de la página y los algoritmos
        ┌──────────────────────────┐
        │ Validación completada    │
        └──────────────────────────┘
+```
+
+
