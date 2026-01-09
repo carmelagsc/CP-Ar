@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Guía RCP{% endblock %}
+
+{% block content %}
+<div class="container mt-3">
+  <div class="row align-items-start">
+    <!-- Columna izquierda: Guía -->
+    <div class="col-12 col-md-6">
+      <section id="rcp-quick-guide" class="rcp-card p-3">
+        <h4 class="mb-3 text-danger">Guía rápida RCP (adultos)</h4>
+        <ol class="rcp-list ps-3">
+          <li><strong>Seguridad:</strong> comprobá que el entorno sea seguro.</li>
+          <li><strong>Evaluación:</strong> no responde / no respira normal → <strong>emergencia</strong>.</li>
+          <li><strong>Pedí ayuda:</strong> llamá al <strong>107/911</strong> y buscá un <strong>DEA</strong>.</li>
+          <li><strong>Compresiones:</strong> centro del pecho, brazos rectos, <strong>100–120/min</strong>, <strong>5–6 cm</strong>, con <em>recoil</em> completo.</li>
+          <li><strong>DEA:</strong> encender, colocar parches, seguir instrucciones; descargar si indica y <strong>reanudar compresiones</strong> de inmediato.</li>
+          <li><strong>Continuar hasta:</strong> llega ayuda, hay signos de vida o estás exhausto.</li>
+        </ol>
+        <p class="text-muted small mt-3">
+          ⚠️ Esta guía no reemplaza capacitación oficial. Usar cuando sea seguro hacerlo.
+        </p>
+      </section>
+    </div>
+
+    <!-- Columna derecha: Imagen -->
+    <div class="col-12 col-md-6 d-flex flex-column align-items-center">
+      <h5 class="text-center text-secondary mb-3">Posicionamiento de las manos</h5>
+      <figure class="text-center">
+        <img src="{{ url_for('static', filename='img/rcp_posición.jpg') }}"
+             alt="Posición correcta para RCP"
+             class="img-fluid rounded shadow">
+        <figcaption class="text-muted small mt-2">
+          Posición correcta antes de comenzar las compresiones.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+

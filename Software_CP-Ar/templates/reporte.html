@@ -1,0 +1,244 @@
+{% extends "layout.html" %}
+{% block title %}Informe de RCP{% endblock %}
+{% block content %}
+<div class="container mt-2">
+  <h4 class="mb-3">Informe de RCP</h4>
+
+  {% if error %}
+    <div class="alert alert-danger" role="alert">
+      Error: {{ error }}
+    </div>
+
+  {% elif not metrics %}
+    <div class="alert alert-secondary" role="alert">
+      No hay métricas para mostrar.
+    </div>
+
+  {% else %}
+    {% set s = metrics.session %}
+    {% set q = metrics.cpr_quality %}
+    {% set rbpm = q.rate_bpm %}
+    {% macro fmt(x, d=1, suffix='') -%}
+    {%- if x is not none -%}{{ ('%.' ~ d ~ 'f')|format(x) }}{{ suffix }}{%- else -%}N/D{%- endif -%}
+    {%- endmacro %}
+    {% set d = q.get('depth_cm') %}
+    <!-- Resumen ejecutivo -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Resumen ejecutivo</h5>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li>Duración analizada: <strong>{{ fmt(s.duration_s) }} s</strong></li>
+              <li>Muestras: <strong>{{ s.samples }}</strong></li>
+              <li>Objetivo adulto: <span class="badge text-bg-primary">100–120 cpm</span></li>
+              <li>Hands-off: <strong>{{ fmt(q.hands_off_time_s) }} s</strong></li>
+            </ul>
+          </div>
+          <div class="col-12 col-md-6">
+            <ul class="list-unstyled mb-0">
+              <li>Frec. mediana:
+                {% set f_m = rbpm.median %}
+                {% if f_m is not none %}
+                  <span class="badge text-bg-{{ 'success' if f_m >= 100 else 'danger' }}">{{ fmt(f_m) }} cpm</span>
+                {% else %}
+                  N/D
+                {% endif %}
+              </li>
+              <li>Prof. mediana:
+                {% set p_m = d.median_cm %}
+                {% if p_m is not none %}
+                  <span class="badge text-bg-{{ 'success' if f_m >= 5 else 'danger' }}">{{ fmt(p_m) }} cm</span>
+                {% else %}
+                  N/D
+                {% endif %}
+              </li>
+              <li>% en 100–120: 
+                {% set p_100 = rbpm.in_target_pct_100_120 %}
+                {% if p_100 is not none %}
+                  <span class="badge text-bg-{{ 'success' if p_100 > 85 else 'danger' }}">{{ fmt(rbpm.in_target_pct_100_120) }} %</span>
+                {% else %}
+                  N/D
+                {% endif %}
+              </li>
+              <li>% en 5–6 cm<strong>{{ fmt(d.in_target_pct_5_6) }}%</strong>
+                {% set t_p = d.in_target_pct_5_6 %}
+                {% if t_p is not none %}
+                  <span class="badge text-bg-{{ 'success' if t_p > 85 else 'danger' }}">{{ fmt(d.in_target_pct_5_6) }} %</span>
+                {% else %}
+                  N/D
+                {% endif %}
+              </li>
+              <li>
+                Fracción de Compresión:
+                {% set cf = q.compression_fraction_pct %}
+                {% if cf is not none %}
+                  <span class="badge text-bg-{{ 'success' if cf >= 60 else 'danger' }}">{{ fmt(cf) }}%</span>
+                {% else %}
+                  N/D
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p class="text-muted small mb-0 mt-2">Nota: se excluyeron los primeros 9 s (CPM no acumulado).</p>
+      </div>
+    </div>
+
+    <!-- Métricas de frecuencia -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Métricas de frecuencia</h5>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <tbody>
+              <tr>
+                <th class="w-50">Media (cpm)</th>
+                <td>{{ rbpm.mean if rbpm.mean is not none else 'N/D' }}</td>
+              </tr>
+              <tr>
+                <th>Mediana (cpm)</th>
+                <td>{{ rbpm.median if rbpm.median is not none else 'N/D' }}</td>
+              </tr>
+              <tr>
+                <th>Desvío (cpm)</th>
+                <td>{{ rbpm.std if rbpm.std is not none else 'N/D' }}</td>
+              </tr>
+              <tr>
+                <th>% dentro de 100–120</th>
+                <td>{{ fmt(rbpm.in_target_pct_100_120) }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+   <!-- Profundidad -->
+    {% if d %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Métricas de profundidad</h5>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <tbody>
+                <tr>
+                  <th class="w-50">Media (cm)</th>
+                  <td>{{ d.mean_cm if d.mean_cm is not none else 'N/D' }}</td>
+                </tr>
+                <tr>
+                  <th>Mediana (cm)</th>
+                  <td>{{ d.median_cm if d.median_cm is not none else 'N/D' }}</td>
+                </tr>
+                <tr>
+                  <th>Desvío (cm)</th>
+                  <td>{{ d.std_cm if d.std_cm is not none else 'N/D' }}</td>
+                </tr>
+                <tr>
+                  <th>% dentro de 5–6 cm</th>
+                  <td>{{ fmt(d.in_target_pct_5_6) }}%</td>
+                </tr>
+                <tr>
+                  <th>% insuficiente (&lt; 5 cm)</th>
+                  <td>{{ fmt(d.below_5_pct) }}%</td>
+                </tr>
+                <tr>
+                  <th>% excesiva (&gt; 6 cm)</th>
+                  <td>{{ fmt(d.above_6_pct) }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-muted small mb-0 mt-2">
+            Rango objetivo adulto: <span class="badge text-bg-primary">5–6 cm</span>
+          </p>
+        </div>
+      </div>
+
+ <!-- Alarmas de profundidad -->
+      {% if metrics.cpr_quality.alarms.sustained_shallow_depth is defined
+            and metrics.cpr_quality.alarms.sustained_shallow_depth.segments
+            and metrics.cpr_quality.alarms.sustained_shallow_depth.segments|length > 0 %}
+        {% set da = metrics.cpr_quality.alarms.sustained_shallow_depth %}
+        <div class="card mb-3 border-danger">
+          <div class="card-body">
+            <h5 class="card-title mb-3 text-danger">Alarma: profundidad sostenida baja</h5>
+            <p class="mb-2">
+              Profundidad &lt; <strong>{{ da.threshold_cm }}</strong> cm por ≥
+              <strong>{{ da.min_duration_s }}</strong> s
+            </p>
+            <ul class="list-group list-group-flush">
+              {% for seg in da.segments %}
+                <li class="list-group-item">
+                  {{ fmt(seg.start_s) }}–{{ fmt(seg.end_s) }}
+                  <span class="text-muted">({{ fmt(seg.duration_s) }} s)</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+    <!-- Pausas -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Pausas (≥ {{ q.pauses_over_threshold_s.threshold_s }} s)</h5>
+        {% set pauses = q.pauses_over_threshold_s.top3_by_duration %}
+        {% if pauses and pauses|length > 0 %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Inicio–Fin (s)</th>
+                  <th>Duración (s)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in pauses %}
+                <tr>
+                  <td>{{ fmt(p.start_s) }}–{{ fmt(p.end_s) }}</td>
+                  <td>{{ fmt(p.duration_s) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <p class="text-muted small mb-0">Total pausas: {{ q.pauses_over_threshold_s.count }}</p>
+        {% else %}
+          <p class="text-muted mb-0">Sin pausas prolongadas.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Alarmas -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Alarmas</h5>
+        {% set a = metrics.cpr_quality.alarms.sustained_high_rate %}
+        {% if a.segments and a.segments|length > 0 %}
+          <p class="mb-2">
+            Frecuencia sostenida &gt; <strong>{{ a.threshold_cpm }} cpm</strong> por ≥ <strong>{{ a.min_duration_s }} s</strong>
+          </p>
+          <ul class="list-group list-group-flush">
+            {% for seg in a.segments %}
+              <li class="list-group-item">
+                {{ fmt(seg.start_s) }}–{{ fmt(seg.end_s) }}
+                <span class="text-muted">({{ fmt(seg.duration_s) }} s)</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Sin segmentos de alta sostenida.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not error and metrics %}
+    <div class="text-center mb-3"> 
+      <a href="{{ url_for('descargar_markdown') }}" class="btn btn-info">
+        Descargar Resumen (.md)
+      </a>
+    </div>
+    {% endif %}
+{% endblock %}

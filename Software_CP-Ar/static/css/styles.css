@@ -1,0 +1,74 @@
+:root{
+  --bg:#fff;
+  --ink:#222;
+  --ink-soft:#707089;
+  --primary:#b9a7ff;     
+  --primary-ink:#6b63bf;
+  --card:#fafbff;
+  --stroke:#e9e9f4;
+}
+
+body{ background:var(--bg); color:var(--ink); }
+
+.barra-superior{
+  background:#fff; padding:16px 20px; text-align:left;
+  border-bottom:1px solid var(--stroke);
+}
+
+/* Tabs estilo suave */
+.soft-tabs .nav-link{
+  color:var(--ink-soft);
+  border:none; border-bottom:3px solid transparent;
+  font-weight:600; padding:10px 16px;
+}
+.soft-tabs .nav-link.active{
+  color:var(--primary-ink);
+  border-bottom-color:var(--primary);
+  background:transparent;
+}
+.card-like{
+  border:1px solid var(--stroke);
+  border-top:none;
+  border-radius:0 0 12px 12px;
+  padding:18px;
+  background:#fff;
+}
+
+/* Métricas */
+.metric{
+  border:1px solid var(--stroke);
+  border-radius:10px;
+  padding:14px 16px; margin-bottom:14px;
+  background:var(--card);
+}
+.metric-value{
+  font-size:32px; font-weight:800; line-height:1;
+}
+.metric-label{
+  color:var(--ink-soft); margin-top:4px; font-size:14px;
+}
+
+/* Panel gráfico */
+.panel{
+  background:#f3f5ff; border:1px solid var(--stroke);
+  border-radius:12px; height:360px; display:flex; align-items:center; justify-content:center;
+}
+
+/* Controles */
+.btn-soft{
+  background:#e8e6ff; border:1px solid var(--stroke);
+  color:#4f4aa6; padding:8px 14px; border-radius:8px; font-weight:600;
+}
+.btn-soft:hover{ filter:brightness(0.97); }
+.btn-soft.disabled{ opacity:.55; pointer-events:none; }
+
+
+.placeholder-panel{ padding:16px; }
+.placeholder-box{
+  height:340px; border:1px dashed var(--stroke);
+  border-radius:12px; background:#f3f5ff;
+}
+
+
+.quick-stats{ font-size:13px; }
+textarea#comentario{ min-width:260px; }

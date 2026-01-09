@@ -1,0 +1,331 @@
+{% extends "layout.html" %}
+{% block title %}CR-Ar{% endblock %}
+{% block content %}
+<div class="text-center mb-4">
+  <p class="text-muted mb-0">Dispositivo de feedback para Reanimación Cardiopulmonar</p>
+</div>
+
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs soft-tabs" id="rcpTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active"
+              id="tab-datos-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-datos"
+              type="button" role="tab"
+              aria-controls="tab-datos" aria-selected="true">
+        CP-Ar
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-reporte-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-reporte"
+              type="button" role="tab"
+              aria-controls="tab-reporte" aria-selected="false">
+        Reporte de la sesión
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-equipo-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-equipo"
+              type="button" role="tab"
+              aria-controls="tab-equipo" aria-selected="false">
+        Información del equipo
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link"
+              id="tab-guia-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#tab-guia"
+              type="button" role="tab"
+              aria-controls="tab-guia" aria-selected="false">
+        Guia RCP
+      </button>
+    </li>
+  </ul>
+
+  <!-- Contenido de tabs -->
+  <div class="tab-content card-like" id="rcpTabsContent">
+    <!-- TAB 1: Datos RCP -->
+    <div class="tab-pane fade show active" id="tab-datos" role="tabpanel" aria-labelledby="tab-datos-tab">
+      <div class="row g-4 align-items-start">
+        <!-- Col izquierda: métricas -->
+        <div class="col-12 col-lg-4">
+          <div class="metric">
+            <div class="metric-value" id="metric-cpm">0</div>
+            <div class="metric-label">Compresiones por minuto</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-value" id="metric-prof">0</div>
+            <div class="metric-label">Profundidad de compresión en cm</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-value" id="metric-t_rcp">0:00</div>
+            <div class="metric-label">Tiempo de RCP</div>
+          </div>
+
+        </div>
+
+        <!-- Col derecha: gráfico + controles -->
+        <div class="col-12 col-lg-8">
+          <div class="panel">
+            <canvas id="grafico" class="w-100" height="320"></canvas>
+          </div>
+
+          <!-- Controles debajo del gráfico -->
+          <div class="controls mt-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <label for="comentario" class="mb-0 small text-muted">Comentario:</label>
+              <textarea id="comentario" rows="1" class="form-control form-control-sm w-auto" placeholder="Nota de la sesión..."></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-soft" onclick="iniciar()">▶️ Start</button>
+              <button class="btn btn-soft" onclick="detener()">⏹ Stop</button>
+              <button id="btn-ver-reporte" class="btn btn-outline-primary" type="button" disabled>Ver Reporte</button>
+              <a id="btn-descargar" href="/descargar" download class="btn btn-soft disabled" tabindex="-1" aria-disabled="true">Descargar CSV</a>
+            </div>
+          </div>
+
+          <!-- resumen rápido-->
+          <div class="quick-stats text-muted mt-2">
+            Compresiones detectadas: <span id="n_comp">0</span> ·
+            CPM: <span id="cpm">0.0</span>
+            Prof: <span id="prof_cm">0.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Información del equipo -->
+    <div class="tab-pane fade" id="tab-equipo" role="tabpanel" aria-labelledby="tab-equipo-tab">
+      <div class="d-flex align-items-center justify-content-between mt-3 mb-2">
+        <h5 class="mb-0">Información del equipo</h5>
+        <div class="d-flex align-items-center gap-2">
+          <button id="btn-refresh-info" class="btn btn-outline-primary btn-sm" type="button">Refrescar</button>
+          <span id="info-last-refresh" class="text-muted small"></span>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <!-- Identificación -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title">Identificación</h6>
+              <div class="row gy-2">
+                <div class="col-12 col-md-6">
+                  <div class="text-muted small">Nombre del dispositivo</div>
+                  <div id="device-name" class="fw-semibold">—</div>
+    </div>
+                <div class="col-6 col-md-3">
+                  <div class="text-muted small">N° de serie / ID</div>
+                  <div id="device-serial" class="fw-semibold">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="text-muted small">Firmware</div>
+                  <div id="device-fw" class="fw-semibold">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensores -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title">Sensores activos</h6>
+              <ul id="sensors-list" class="mb-0 small">
+                <!-- JS llena acá -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sesión actual -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title">Sesión actual</h6>
+              <div class="row gy-2">
+                <div class="col-6">
+                  <div class="text-muted small">Duración</div>
+                  <div id="session-duration" class="fw-semibold">—</div>
+                </div>
+                <div class="col-6">
+                  <div class="text-muted small">Compresiones</div>
+                  <div id="session-compressions" class="fw-semibold">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conexión -->
+        <div class="col-12 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title">Conexión</h6>
+              <div class="row gy-2">
+                <div class="col-6">
+                  <div class="text-muted small">Estado WiFi</div>
+                  <span id="conn-status" class="badge bg-secondary">—</span>
+                </div>
+                <div class="col-6">
+                  <div class="text-muted small">IP local</div>
+                  <div id="conn-ip" class="fw-semibold">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Uso y seguridad -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Uso y seguridad</h6>
+              <ul class="mb-0 small">
+                <li><strong>Posicionamiento:</strong> colocar en el centro del pecho (sobre el esternón).</li>
+                <li><strong>Advertencias:</strong> Este dispositivo es un prototipo.</li>
+                <li><strong>Contacto:</strong> <span id="contact-email">—</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div> <!-- /row -->
+    </div> <!-- /tab-equipo -->
+
+    <!-- TAB 3: Reporte -->
+    <div class="tab-pane fade" id="tab-reporte" role="tabpanel" aria-labelledby="tab-reporte-tab">
+      <div class="placeholder-panel">
+        <iframe id="report-frame" src="/reporte" style="width:100%; height:80vh; border:none;"></iframe>
+      </div>
+    </div>
+
+    <!-- TAB 4: Guía -->
+    <div class="tab-pane fade" id="tab-guia" role="tabpanel" aria-labelledby="tab-guia-tab">
+      <div class="placeholder-panel">
+        <iframe id="guia-frame" src="/guia" style="width:100%; height:80vh; border:none;"></iframe>
+      </div>
+  </div>
+  </div> <!-- /tab-content -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // --- Config ---
+  const INFO_ENDPOINT = "/api/device-info";
+  let equipoTimer = null;
+
+  // --- Helpers ---
+  function setInfoLastRefresh() {
+    const el = document.getElementById("info-last-refresh");
+    if (el) el.textContent = "Actualizado: " + new Date().toLocaleString();
+  }
+
+  async function fetchEquipo() {
+    try {
+      const res = await fetch(INFO_ENDPOINT, { cache: "no-store" });
+      const d = await res.json();
+
+      // Identificación
+      document.getElementById("device-name").textContent   = d.device_name ?? "—";
+      document.getElementById("device-serial").textContent = d.serial ?? "—";
+      document.getElementById("device-fw").textContent     = d.firmware ?? "—";
+
+      // Sensores
+      const ul = document.getElementById("sensors-list");
+      ul.innerHTML = "";
+      (d.sensors ?? [{name:"Acelerómetro", status:"—"}]).forEach(s => {
+        const li = document.createElement("li");
+        li.innerHTML = `${s.name}: <strong>${s.status || "—"}</strong>`;
+        ul.appendChild(li);
+      });
+
+      // Sesión (si tu endpoint trae esto)
+      document.getElementById("session-duration").textContent = d.session?.duration ?? "—";
+      document.getElementById("session-compressions").textContent = d.session?.prof_cm ?? "—";
+
+      // Métricas rápidas (opcional)
+      document.getElementById("metric-cpm").textContent = d.session?.cpm ?? "—";
+      document.getElementById("metric-prof").textContent = d.session?.prof_cm ?? "—";
+
+      // Conexión
+      const connBadge = document.getElementById("conn-status");
+      const connected = !!d.connection?.connected;
+      connBadge.textContent = connected ? "Conectado" : "No conectado";
+      connBadge.className = "badge " + (connected ? "bg-success" : "bg-secondary");
+      document.getElementById("conn-ip").textContent = d.connection?.ip ?? "—";
+
+      // Contacto
+      document.getElementById("contact-email").textContent = d.contact ?? "—";
+
+      setInfoLastRefresh();
+    } catch (e) {
+      console.error(e);
+      const el = document.getElementById("info-last-refresh");
+      if (el) el.textContent = "Sin conexión al servidor";
+    }
+  }
+
+  function startEquipoAuto() {
+    stopEquipoAuto();
+    fetchEquipo();
+    equipoTimer = setInterval(fetchEquipo, 10000);
+  }
+
+  function stopEquipoAuto() {
+    if (equipoTimer) { clearInterval(equipoTimer); equipoTimer = null; }
+  }
+
+  // --- Botones auxiliares ---
+  document.addEventListener("click", (ev) => {
+    // Refrescar info de equipo
+    if (ev.target && ev.target.id === "btn-refresh-info") fetchEquipo();
+
+    // Ver Reporte → cambia a la tab Reporte
+    if (ev.target && ev.target.id === "btn-ver-reporte") {
+      const tabBtn = document.getElementById("tab-reporte-tab");
+      if (tabBtn) {
+        const t = new bootstrap.Tab(tabBtn);
+        t.show();
+      }
+    }
+  });
+
+  // --- Integración con tabs ---
+  document.addEventListener("shown.bs.tab", function (ev) {
+    // Reporte: recargar iframe al entrar
+    if (ev.target && ev.target.id === "tab-reporte-tab") {
+      const frame = document.getElementById("report-frame");
+      if (frame?.contentWindow) frame.contentWindow.location.reload();
+      else if (frame) frame.src = frame.src;
+      stopEquipoAuto(); // por si venías de Equipo
+    }
+
+
+    if (ev.target && ev.target.id === "tab-equipo-tab") {
+      startEquipoAuto();
+    }
+
+    if (ev.target && (ev.target.id === "tab-datos-tab" || ev.target.id === "tab-guia-tab")) {
+      stopEquipoAuto();
+    }
+  });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const active = document.querySelector(".nav-link.active");
+    if (active && active.id === "tab-equipo-tab") startEquipoAuto();
+  });
+</script>
+{% endblock %}
